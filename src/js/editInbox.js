@@ -1,0 +1,335 @@
+const token = window.localStorage.getItem("token");
+if (!token) {
+  window.location.assign("/src/index.html");
+  alert("Please login");
+}
+
+const eMail = window.localStorage.getItem("fromemails");
+
+const subJect = window.localStorage.getItem("subjects");
+
+const myMessages = window.localStorage.getItem("messages");
+
+// document.getElementById('toemails').innerHTML = result
+
+document.getElementById("emails").innerHTML = eMail;
+document.getElementById("subjects").innerHTML = subJect;
+document.getElementById("messages").innerHTML = myMessages;
+
+const myIds = window.localStorage.getItem("idss");
+
+const edit = () => {
+  let toemail = document.getElementById("emails").value.trim();
+  let subject = document.getElementById("subjects").value.trim();
+  let message = document.getElementById("messages").value.trim();
+  let msgstatus = "sent";
+
+  if (toemail === undefined) {
+    Handler.alertMessage("Error: email field cannot be empty", 3, "red");
+    return;
+  }
+
+  toemail = toemail.toLowerCase();
+  if (typeof toemail !== "string") {
+    Handler.alertMessage("Error: email should be a string", 3, "red");
+    return;
+  }
+  if (toemail === "") {
+    Handler.alertMessage("Error: email field cannot be empty.", 3, "red");
+    return;
+  }
+  if (toemail.includes(" ")) {
+    Handler.alertMessage("Error: email cannot include space.", 3, "red");
+    return;
+  }
+  // toemail check: stackoverflow
+  const toemailCheck = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$/;
+  if (!toemailCheck.test(toemail)) {
+    Handler.alertMessage("Error: email format is invalid", 3, "red");
+    return;
+  }
+  if (toemail.length < 10 || toemail.length > 30) {
+    Handler.alertMessage(
+      "Error: email should be 10 to 30 characters long",
+      3,
+      "red"
+    );
+    return;
+  }
+
+  if (subject === undefined) {
+    Handler.alertMessage("Error: subject cannot be empty", 3, "red");
+    return;
+  }
+
+  if (subject === " ") {
+    Handler.alertMessage("subject cannot include space", 3, "red");
+    return;
+  }
+
+  if (subject === "") {
+    Handler.alertMessage("Error: subject field cannot be empty", 3, "red");
+    return;
+  }
+  subject = subject.trim();
+  subject = subject.replace(/ {1,}/g, " ");
+
+  if (message === undefined) {
+    Handler.alertMessage("Error: message cannot be empty", 3, "red");
+    return;
+  }
+
+  if (message === "") {
+    Handler.alertMessage("Error: message field cannot be empty", 3, "red");
+    return;
+  }
+
+  if (message === " ") {
+    Handler.alertMessage("mesage cannot include space", 3, "red");
+    return;
+  }
+
+  message = message.replace(/ {1,}/g, " ");
+
+  const targetUrl = `https://epic-mail-apis.herokuapp.com/api/v1/messages/updateReceivedMessage/${myIds}`;
+
+  fetch(targetUrl, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json, text/plain, */*",
+      "Content-type": "application/json",
+      authorization: token,
+    },
+    body: JSON.stringify({
+      subject,
+      message,
+      toemail,
+      msgstatus,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data);
+      const mesg = data.error;
+
+      let message = "";
+
+      // return some error messages
+      message = "Error: toemail field cannot be empty.";
+      if (data.message === message) {
+        Handler.alertMessage(data.message, 0, "red");
+        return;
+      }
+      const messages = "Error: toemail format is invalid";
+
+      if (mesg === messages) {
+        Handler.alertMessage(mesg, 0, "red");
+        //  alert(mesg);
+        return;
+      }
+
+      message = "Error: toemail should be 2 to 100 characters long";
+      if (data.message === message) {
+        Handler.alertMessage(data.message, 0, "red");
+        return;
+      }
+
+      message = "Error: toemail does not exist.";
+      if (data.message === message) {
+        Handler.alertMessage(data.message, 0, "red");
+        return;
+      }
+
+      message = "Error: message not found";
+      if (data.message === message) {
+        Handler.alertMessage(data.message, 0, "red");
+        return;
+      }
+
+      message = "Error: subject field cannot be empty";
+      if (data.message === message) {
+        Handler.alertMessage(data.message, 1, "red");
+        return;
+      }
+
+      message = "Error: message field cannot be empty";
+      if (data.message === message) {
+        Handler.alertMessage(data.message, 2, "red");
+        return;
+      }
+
+      message = "Error: message could not be edited. Try again";
+      if (data.message === message) {
+        Handler.alertMessage(data.message, 3, "red");
+        return;
+      }
+
+      if (data.message === "Success: message updated successfully!") {
+        Handler.alertMessage(data.message, 0, "green");
+
+        // window.location.assign('/src/sent.html');
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
+const drafts = () => {
+  let toemail = document.getElementById("toemails").value.trim();
+  let subject = document.getElementById("subjects").value.trim();
+  let message = document.getElementById("messages").value.trim();
+  let msgstatus = "draft";
+
+  if (toemail === undefined) {
+    Handler.alertMessage("Error: toemail field cannot be empty", 3, "red");
+    return;
+  }
+
+  toemail = toemail.toLowerCase();
+  if (typeof toemail !== "string") {
+    Handler.alertMessage("Error: toemail should be a string", 3, "red");
+    return;
+  }
+  if (toemail === "") {
+    Handler.alertMessage("Error: toemail field cannot be empty.", 3, "red");
+    return;
+  }
+  if (toemail.includes(" ")) {
+    Handler.alertMessage("Error: toemail cannot include space.", 3, "red");
+    return;
+  }
+  // toemail check: stackoverflow
+  const toemailCheck = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$/;
+  if (!toemailCheck.test(toemail)) {
+    Handler.alertMessage("Error: toemail format is invalid", 3, "red");
+    return;
+  }
+  if (toemail.length < 10 || toemail.length > 30) {
+    Handler.alertMessage(
+      "Error: toemail should be 10 to 30 characters long",
+      3,
+      "red"
+    );
+    return;
+  }
+
+  if (subject === undefined) {
+    Handler.alertMessage("Error: subject cannot be empty", 3, "red");
+    return;
+  }
+
+  if (subject === " ") {
+    Handler.alertMessage("subject cannot include space", 3, "red");
+    return;
+  }
+
+  if (subject === "") {
+    Handler.alertMessage("Error: subject field cannot be empty", 3, "red");
+    return;
+  }
+  subject = subject.trim();
+  subject = subject.replace(/ {1,}/g, " ");
+
+  if (message === undefined) {
+    Handler.alertMessage("Error: message cannot be empty", 3, "red");
+    return;
+  }
+
+  if (message === "") {
+    Handler.alertMessage("Error: message field cannot be empty", 3, "red");
+    return;
+  }
+
+  if (message === " ") {
+    Handler.alertMessage("mesage cannot include space", 3, "red");
+    return;
+  }
+
+  message = message.replace(/ {1,}/g, " ");
+
+  const targetUrl = "https://epic-mail-apis.herokuapp.com/api/v1/messages";
+
+  fetch(targetUrl, {
+    method: "POST",
+    headers: {
+      Accept: "application/json, text/plain, */*",
+      "Content-type": "application/json",
+      authorization: token,
+    },
+    body: JSON.stringify({
+      subject,
+      message,
+      toemail,
+      msgstatus,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      const mesgs = data.error;
+      let message = "";
+      console.log(data);
+      // return some error messages
+      message = "Error: toemail field cannot be empty.";
+      if (data.message === message) {
+        Handler.alertMessage(data.message, 0, "red");
+        return;
+      }
+
+      const msg = "Error: toemail format is invalid";
+      if (mesgs === msg) {
+        Handler.alertMessage(msg, 1, "red");
+
+        return;
+      }
+
+      message = "Error: toemail should be 2 to 100 characters long";
+      if (data.message === message) {
+        Handler.alertMessage(data.message, 2, "red");
+
+        return;
+      }
+
+      message = "Error: toemail does not exist.";
+      if (data.message === message) {
+        Handler.alertMessage(message, 3, "red");
+        return;
+      }
+
+      message = "Error: subject field cannot be empty";
+      if (data.message === message) {
+        Handler.alertMessage(data.message, 4, "red");
+        return;
+      }
+
+      message = "Error: message field cannot be empty";
+      if (data.message === message) {
+        Handler.alertMessage(data.message, 2, "red");
+        return;
+      }
+
+      message = "Error: message sending failed.";
+      if (data.message === message) {
+        Handler.alertMessage(data.message, 3, "red");
+        return;
+      }
+      message = "Error: toemail cannot include space.";
+      if (data.message === message) {
+        Handler.alertMessage(data.message, 3, "red");
+        return;
+      }
+      message = "Error: Oops! looks like you tried to toemail yourself.";
+      if (data.message === message) {
+        Handler.alertMessage(data.message, 3, "red");
+        return;
+      }
+
+      if (data.message === "Success: message sent successfully!") {
+        Handler.alertMessage("draft saved", 1, "green");
+        window.location.assign("/src/drafts.html");
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
